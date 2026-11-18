@@ -3,11 +3,11 @@
 A terminal UI for reviewing your unreviewed [Lunch Money](https://lunchmoney.app)
 transactions.
 
-`lmao` lists the transactions waiting for review in one month at a time,
-starting with the current month, newest first, with the selected one's
-details beside it. The header says how many are waiting in other months. From there you can mark transactions
-reviewed, set their categories and edit their notes, without opening the
-web app.
+`lmao` lists the transactions waiting for review one month at a time,
+starting with the current month, with the selected one's details beside
+it. The header says how many are waiting in other months. From there you
+can mark transactions reviewed, set their categories and edit their notes,
+without opening the web app.
 
 ## Setup
 
