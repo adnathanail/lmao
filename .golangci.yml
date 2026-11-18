@@ -1,0 +1,12 @@
+version: "2"
+
+linters:
+  settings:
+    errcheck:
+      # Writes that have nowhere to report a failure: an error message to
+      # stderr, and test HTTP handlers' responses.
+      exclude-functions:
+        - charm.land/lipgloss/v2.Fprintln
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
