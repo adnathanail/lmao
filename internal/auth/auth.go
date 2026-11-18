@@ -9,7 +9,8 @@ import (
 )
 
 // TokenSource gives the bearer token for an API request. The client asks for
-// a token on every request, so a source can refresh tokens that expire.
+// a token on every request, so a source can refresh tokens that expire, as
+// one using OAuth would.
 type TokenSource interface {
 	Token(ctx context.Context) (string, error)
 }
