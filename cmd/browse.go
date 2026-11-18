@@ -59,10 +59,12 @@ func (r *row) reviewed() bool { return r.tx.Status == lunchmoney.StatusReviewed 
 type model struct {
 	api api
 
-	rows         []row
-	cursor       int // index in rows
-	offset       int // first row shown
-	detailOffset int // first line of the details shown
+	rows         []row     // every unreviewed transaction loaded, in order
+	visible      []int     // indexes in rows of those in the month shown
+	cursor       int       // index in visible
+	offset       int       // first row of visible shown
+	month        time.Time // the first of the month shown, in UTC
+	detailOffset int       // first line of the details shown
 
 	width, height int
 
@@ -87,7 +89,12 @@ type model struct {
 }
 
 func newModel(a api) *model {
-	return &model{api: a}
+	return &model{api: a, month: monthOf(time.Now())}
+}
+
+// monthOf is the first of t's month, in UTC.
+func monthOf(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
 }
 
 type (
@@ -241,7 +248,7 @@ func (m *model) loaded(msg loadedMsg) {
 
 // sortRows sorts the rows by date, newest first (as the Lunch Money app
 // lists them) or oldest first, and selects the row with the given ID, or
-// the first row if it isn't there.
+// the first row of the month if it isn't there.
 func (m *model) sortRows(selected int64) {
 	slices.SortStableFunc(m.rows, func(a, b row) int {
 		c := cmp.Or(strings.Compare(a.tx.Date, b.tx.Date), cmp.Compare(a.tx.ID, b.tx.ID))
@@ -250,12 +257,30 @@ func (m *model) sortRows(selected int64) {
 		}
 		return c
 	})
+	m.filter(selected)
+}
+
+// filter shows the rows in the month shown, and selects the row with the
+// given ID, or the first if it isn't there.
+func (m *model) filter(selected int64) {
+	key := m.month.Format("2006-01")
+	m.visible = m.visible[:0]
 	m.cursor = 0
 	for i := range m.rows {
-		if m.rows[i].tx.ID == selected {
-			m.cursor = i
+		if strings.HasPrefix(m.rows[i].tx.Date, key) {
+			if m.rows[i].tx.ID == selected {
+				m.cursor = len(m.visible)
+			}
+			m.visible = append(m.visible, i)
 		}
 	}
+}
+
+// showMonth moves by months, and selects the first row in the new month.
+func (m *model) showMonth(by int) {
+	m.month = m.month.AddDate(0, by, 0)
+	m.filter(-1)
+	m.offset, m.detailOffset = 0, 0
 }
 
 func accountMap(accounts []lunchmoney.Account) map[int64]lunchmoney.Account {
@@ -270,10 +295,10 @@ func (m *model) setError(s string) { m.message, m.messageErr = s, true }
 func (m *model) note(s string)     { m.message, m.messageErr = s, false }
 
 func (m *model) selected() *row {
-	if m.cursor < 0 || m.cursor >= len(m.rows) {
+	if m.cursor < 0 || m.cursor >= len(m.visible) {
 		return nil
 	}
-	return &m.rows[m.cursor]
+	return &m.rows[m.visible[m.cursor]]
 }
 
 func (m *model) rowByID(id int64) *row {
@@ -299,9 +324,13 @@ func (m *model) key(msg tea.KeyPressMsg) tea.Cmd {
 	case "pgdown":
 		m.move(max(1, m.listHeight()-1))
 	case "home", "g":
-		m.move(-len(m.rows))
+		m.move(-len(m.visible))
 	case "end", "G":
-		m.move(len(m.rows))
+		m.move(len(m.visible))
+	case "left", "h":
+		m.showMonth(-1)
+	case "right", "l":
+		m.showMonth(1)
 	case "K", "shift+up":
 		m.detailOffset = max(0, m.detailOffset-1)
 	case "J", "shift+down":
@@ -328,7 +357,7 @@ func (m *model) key(msg tea.KeyPressMsg) tea.Cmd {
 }
 
 func (m *model) move(by int) {
-	c := max(0, min(len(m.rows)-1, m.cursor+by))
+	c := max(0, min(len(m.visible)-1, m.cursor+by))
 	if c != m.cursor {
 		m.detailOffset = 0
 	}
@@ -338,8 +367,8 @@ func (m *model) move(by int) {
 // nextUnreviewed selects the next unreviewed row below the selected one
 // that isn't being saved, if there is one.
 func (m *model) nextUnreviewed() {
-	for i := m.cursor + 1; i < len(m.rows); i++ {
-		if r := &m.rows[i]; !r.reviewed() && !r.saving {
+	for i := m.cursor + 1; i < len(m.visible); i++ {
+		if r := &m.rows[m.visible[i]]; !r.reviewed() && !r.saving {
 			m.move(i - m.cursor)
 			return
 		}
@@ -475,7 +504,7 @@ func (m *model) click(mouse tea.Mouse) {
 	if line < 0 || line >= m.listHeight() || (m.wide() && mouse.X >= m.listWidth()) {
 		return
 	}
-	if i := m.offset + line; i < len(m.rows) {
+	if i := m.offset + line; i < len(m.visible) {
 		m.move(i - m.cursor)
 	}
 }

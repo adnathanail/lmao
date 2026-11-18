@@ -49,6 +49,10 @@ reference pages render client-side, so read the spec instead.
   uncategorised ones. Setting a category also marks the transaction
   reviewed, in the same `PUT`. `r`, and `c`'s Enter, move to the next
   unreviewed row below.
+- **The list shows one month** (`model.month`, the current month to
+  start with): every unreviewed transaction is loaded into `rows`, and
+  `visible` holds the indexes of those in the month shown, which `cursor`
+  and `offset` index into. Changing month filters locally, without a request.
 - **Reviewed rows stay until a reload**, in green with a ✓; only
   unreviewed transactions are loaded, so a reload drops them.
 - **`Change` sends only the fields being changed** (its `MarshalJSON`):

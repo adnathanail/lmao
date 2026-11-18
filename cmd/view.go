@@ -62,7 +62,7 @@ func (m *model) scroll() {
 	if m.cursor >= m.offset+h {
 		m.offset = m.cursor - h + 1
 	}
-	m.offset = max(0, min(m.offset, len(m.rows)-h))
+	m.offset = max(0, min(m.offset, len(m.visible)-h))
 }
 
 // fit truncates s to width, then pads it to width.
@@ -122,7 +122,8 @@ func (m *model) listLines(width, height int) []string {
 	payeeW := max(0, rest-catW)
 
 	var lines []string
-	for i := m.offset; i < len(m.rows) && len(lines) < height; i++ {
+	for v := m.offset; v < len(m.visible) && len(lines) < height; v++ {
+		i := m.visible[v]
 		r := &m.rows[i]
 		marker := " "
 		switch {
@@ -146,9 +147,9 @@ func (m *model) listLines(width, height int) []string {
 		}
 		line := fit(strings.Join(cells, ""), width)
 		switch {
-		case i == m.cursor && r.reviewed():
+		case v == m.cursor && r.reviewed():
 			line = styleSelected.Inherit(styleReviewed).Render(line)
-		case i == m.cursor:
+		case v == m.cursor:
 			line = styleSelected.Render(line)
 		case r.reviewed():
 			line = styleReviewed.Render(line)
@@ -169,8 +170,12 @@ func (m *model) listLines(width, height int) []string {
 		}
 		lines = append(lines, line)
 	}
-	if len(m.rows) == 0 && !m.loading && m.loadedOnce {
-		lines = append(lines, styleReviewed.Render("Nothing to review"))
+	if len(m.visible) == 0 && !m.loading && m.loadedOnce {
+		text := "Nothing to review"
+		if len(m.rows) > 0 {
+			text += " in " + m.month.Format("January 2006") + styleDim.Render(": ←/→ for other months")
+		}
+		lines = append(lines, styleReviewed.Render(text))
 	}
 	return lines
 }
@@ -383,17 +388,26 @@ func (m *model) rightPanel(width, height int) []string {
 }
 
 func (m *model) header() string {
-	parts := []string{styleHeading.Render("lmao")}
-	reviewed := 0
-	for i := range m.rows {
+	parts := []string{styleHeading.Render("lmao"), styleHeading.Render("‹ " + m.month.Format("January 2006") + " ›")}
+	reviewed, elsewhere := 0, 0
+	for _, i := range m.visible {
 		if m.rows[i].reviewed() {
 			reviewed++
 		}
 	}
+	for i := range m.rows {
+		if !m.rows[i].reviewed() {
+			elsewhere++
+		}
+	}
+	elsewhere -= len(m.visible) - reviewed
 	if m.loadedOnce {
-		parts = append(parts, plural(len(m.rows)-reviewed, "to review", "to review"))
+		parts = append(parts, plural(len(m.visible)-reviewed, "to review", "to review"))
 		if reviewed > 0 {
 			parts = append(parts, styleReviewed.Render(plural(reviewed, "reviewed", "reviewed")))
+		}
+		if elsewhere > 0 {
+			parts = append(parts, styleDim.Render(plural(elsewhere, "in other months", "in other months")))
 		}
 	}
 	if m.oldestFirst {
@@ -419,7 +433,7 @@ func (m *model) footer() (message, keys string) {
 	case modeNotes:
 		hints = []string{"enter save", "alt+enter new line", "esc cancel"}
 	default:
-		hints = []string{"r review", "c category", "n notes", "u undo", "s sort", "J/K scroll details", "R reload", "q quit"}
+		hints = []string{"r review", "c category", "n notes", "u undo", "←/→ month", "s sort", "J/K scroll details", "R reload", "q quit"}
 	}
 	return message, styleDim.Render(strings.Join(hints, " · "))
 }

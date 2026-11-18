@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
@@ -85,6 +86,7 @@ func newFake() *fakeAPI {
 		{ID: 1, Date: "2026-11-10", Payee: "Corner shop", Amount: "4.5000", Currency: "gbp", Status: "unreviewed", PlaidAccountID: id(9)},
 		{ID: 2, Date: "2026-11-12", Payee: "Bus", Amount: "2.8000", Currency: "gbp", Status: "unreviewed", CategoryID: id(4)},
 		{ID: 3, Date: "2026-11-11", Payee: "Employer", Amount: "-2100.0000", Currency: "gbp", Status: "unreviewed"},
+		{ID: 4, Date: "2026-10-30", Payee: "Garage", Amount: "80.0000", Currency: "gbp", Status: "unreviewed", CategoryID: id(4)},
 	}}
 }
 
@@ -143,6 +145,7 @@ func typeText(t *testing.T, m *model, s string) {
 func loadedModel(t *testing.T, f *fakeAPI) *model {
 	t.Helper()
 	m := newModel(f)
+	m.month = monthOf(time.Date(2026, 11, 18, 0, 0, 0, 0, time.UTC))
 	run(t, m, tea.WindowSizeMsg{Width: 120, Height: 30})
 	for _, msg := range collect(m.Init()) {
 		run(t, m, msg)
@@ -152,8 +155,8 @@ func loadedModel(t *testing.T, f *fakeAPI) *model {
 
 func payees(m *model) string {
 	var p []string
-	for _, r := range m.rows {
-		p = append(p, r.tx.Payee)
+	for _, i := range m.visible {
+		p = append(p, m.rows[i].tx.Payee)
 	}
 	return strings.Join(p, ",")
 }
@@ -187,6 +190,45 @@ func TestSortFlips(t *testing.T) {
 	run(t, m, press("s"))
 	if got := payees(m); got != "Bus,Employer,Corner shop" {
 		t.Fatalf("newest first: %s", got)
+	}
+}
+
+func TestMonths(t *testing.T) {
+	m := loadedModel(t, newFake())
+	if !strings.Contains(ansi.Strip(m.header()), "November 2026") || !strings.Contains(ansi.Strip(m.header()), "1 in other months") {
+		t.Fatalf("header = %q", ansi.Strip(m.header()))
+	}
+	run(t, m, press("j"))
+	run(t, m, tea.KeyPressMsg{Code: tea.KeyLeft})
+	if got := payees(m); got != "Garage" || m.cursor != 0 {
+		t.Fatalf("October: %s, cursor %d", got, m.cursor)
+	}
+	if h := ansi.Strip(m.header()); !strings.Contains(h, "October 2026") || !strings.Contains(h, "3 in other months") {
+		t.Fatalf("header = %q", h)
+	}
+
+	// Reviewing works on the month shown, and reloading keeps it.
+	run(t, m, press("r"))
+	if !m.selected().reviewed() {
+		t.Fatal("Garage wasn't reviewed")
+	}
+	run(t, m, press("R"))
+	if got := payees(m); got != "" {
+		t.Fatalf("October after reload: %q", got)
+	}
+	if out := ansi.Strip(m.View().Content); !strings.Contains(out, "Nothing to review in October 2026") {
+		t.Fatalf("view:\n%s", out)
+	}
+
+	run(t, m, tea.KeyPressMsg{Code: tea.KeyRight})
+	run(t, m, tea.KeyPressMsg{Code: tea.KeyRight})
+	if got := payees(m); got != "" || m.selected() != nil {
+		t.Fatalf("December: %q", got)
+	}
+	run(t, m, press("r")) // nothing selected: does nothing
+	run(t, m, press("h"))
+	if got := payees(m); got != "Bus,Employer,Corner shop" {
+		t.Fatalf("back to November: %s", got)
 	}
 }
 

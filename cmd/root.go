@@ -20,7 +20,8 @@ var rootCmd = &cobra.Command{
 	Use:   "lmao",
 	Short: "Review your unreviewed Lunch Money transactions",
 	Long: `lmao opens a full-screen list of your unreviewed Lunch Money transactions,
-with the selected one's details beside it.
+one month at a time, starting with the current one, with the selected
+transaction's details beside it.
 
 Keys:
   ↑/↓ j/k     select a transaction (PgUp/PgDn, g/G jump)
@@ -28,6 +29,7 @@ Keys:
   c           set its category (and mark it reviewed)
   n           edit its notes
   u           undo the review (and category) made in this session
+  ←/→ h/l     show the previous or next month
   s           flip the order (newest or oldest first), selecting the first
   J/K         scroll the details
   R           reload from Lunch Money

@@ -3,8 +3,9 @@
 A terminal UI for reviewing your unreviewed [Lunch Money](https://lunchmoney.app)
 transactions.
 
-`lmao` lists every transaction waiting for review, newest first, with the
-selected one's details beside it. From there you can mark transactions
+`lmao` lists the transactions waiting for review in one month at a time,
+starting with the current month, newest first, with the selected one's
+details beside it. The header says how many are waiting in other months. From there you can mark transactions
 reviewed, set their categories and edit their notes, without opening the
 web app.
 
@@ -49,6 +50,7 @@ runs as `lmao` from anywhere if that folder is on your `PATH`.
 | `c` | Set its category: type to narrow the list, `Enter` to set it. This also marks it reviewed. |
 | `n` | Edit its notes: `Enter` saves, `Alt-Enter` adds a new line, `Esc` cancels |
 | `u` | Undo: put its status and category back to how they were before you changed them |
+| `←`/`→`, `h`/`l` | Show the previous or next month |
 | `s` | Flip the order, newest first (the default) or oldest first, and select the first transaction |
 | `J`/`K` | Scroll the details |
 | `R` | Reload from Lunch Money |
