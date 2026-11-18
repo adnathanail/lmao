@@ -1,0 +1,78 @@
+name: 🧪 CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }}, Go ${{ matrix.go }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # macOS is where lmao runs; Linux keeps it portable.
+        os: [macos-latest, ubuntu-latest]
+        # "min" is the version in go.mod, so raising it there is caught here.
+        go: [min, stable]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go == 'stable' && 'stable' || '' }}
+          go-version-file: ${{ matrix.go == 'min' && 'go.mod' || '' }}
+
+      - name: Test
+        run: go test -race ./...
+
+      - name: Build static binary
+        run: CGO_ENABLED=0 go build -o lmao .
+
+  # Runs the client against Lunch Money's mock server, so changes to the API
+  # that the local tests can't see show up here.
+  mock:
+    name: Mock server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: Test against mock.lunchmoney.dev
+        env:
+          LMAO_TEST_MOCK: '1'
+        run: go test -v -run TestMockServer ./internal/lunchmoney/
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "Run gofmt -w on:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: go mod tidy
+        run: go mod tidy -diff
+
+      - name: go vet
+        run: go vet ./...
+
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
