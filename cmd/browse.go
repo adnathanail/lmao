@@ -351,6 +351,10 @@ func (m *model) review() tea.Cmd {
 		m.note("Already reviewed: u undoes it")
 		return nil
 	}
+	if r.tx.CategoryID == nil {
+		m.note("Set a category first: c sets one and marks it reviewed")
+		return nil
+	}
 	cmd := m.save(r, lunchmoney.Change{Status: lunchmoney.StatusReviewed}, false)
 	m.nextUnreviewed()
 	return cmd

@@ -33,7 +33,7 @@ LUNCHMONEY_API_URL=https://mock.lunchmoney.dev/v2 LUNCHMONEY_TOKEN=any-mock-toke
 | Key | Does |
 | --- | --- |
 | `↑`/`↓`, `j`/`k` | Select a transaction (`PgUp`/`PgDn`, `g`/`G` jump) |
-| `r` | Mark it reviewed, and move to the next unreviewed one |
+| `r` | Mark it reviewed, and move to the next unreviewed one. Only transactions with a category can be reviewed. |
 | `c` | Set its category: type to narrow the list, `Enter` to set it. This also marks it reviewed. |
 | `n` | Edit its notes: `Enter` saves, `Alt-Enter` adds a new line, `Esc` cancels |
 | `u` | Undo: put its status and category back to how they were before you changed them |

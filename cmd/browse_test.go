@@ -206,6 +206,19 @@ func TestReviewAndUndo(t *testing.T) {
 	}
 }
 
+func TestReviewNeedsCategory(t *testing.T) {
+	f := newFake()
+	m := loadedModel(t, f)
+	run(t, m, press("j")) // Employer, no category
+	run(t, m, press("r"))
+	if m.rows[1].reviewed() || len(f.changes) != 0 {
+		t.Fatalf("reviewed without a category: %+v, sent %+v", m.rows[1].tx, f.changes)
+	}
+	if m.cursor != 1 || !strings.Contains(m.message, "Set a category first") {
+		t.Fatalf("cursor = %d, message = %q", m.cursor, m.message)
+	}
+}
+
 func TestCategoryReviewsAndUndoRestoresIt(t *testing.T) {
 	f := newFake()
 	m := loadedModel(t, f)

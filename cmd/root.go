@@ -24,7 +24,7 @@ with the selected one's details beside it.
 
 Keys:
   ↑/↓ j/k     select a transaction (PgUp/PgDn, g/G jump)
-  r           mark it reviewed
+  r           mark it reviewed (it needs a category)
   c           set its category (and mark it reviewed)
   n           edit its notes
   u           undo the review (and category) made in this session

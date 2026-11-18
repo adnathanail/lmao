@@ -45,8 +45,10 @@ reference pages render client-side, so read the spec instead.
   when that change succeeds. `u` restores it in one `PUT` (clearing the
   category with `category_id: null` if it had none), then clears it. Notes
   aren't covered by undo.
-- **Setting a category also marks the transaction reviewed**, in the same
-  `PUT`. `r`, and `c`'s Enter, move to the next unreviewed row below.
+- **A transaction can only be reviewed with a category**: `r` refuses
+  uncategorised ones. Setting a category also marks the transaction
+  reviewed, in the same `PUT`. `r`, and `c`'s Enter, move to the next
+  unreviewed row below.
 - **Reviewed rows stay until a reload**, in green with a ✓; only
   unreviewed transactions are loaded, so a reload drops them.
 - **`Change` sends only the fields being changed** (its `MarshalJSON`):
