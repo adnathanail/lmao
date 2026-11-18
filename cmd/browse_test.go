@@ -500,7 +500,7 @@ func TestOpenInBrowser(t *testing.T) {
 		t.Fatal("o returned no command")
 	}
 	run(t, m, cmd())
-	if opened != "https://my.lunchmoney.app/transactions?transaction_id=3" {
+	if opened != "https://my.lunchmoney.app/transactions?transaction_id=3&status=unreviewed" {
 		t.Fatalf("opened %q", opened)
 	}
 
