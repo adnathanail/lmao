@@ -185,16 +185,16 @@ Details that shape the code:
 
 ## Milestones
 
-1. **Skeleton:** `go mod init github.com/adnathanail/lmao`, Cobra root, token
+1. **Skeleton:** ✓ `go mod init github.com/adnathanail/lmao`, Cobra root, token
    from the environment, API client with transaction, category and account
    listing, and tests.
-2. **Read-only TUI:** two-pane layout, list, detail panel, reload, resizing.
-3. **Review and undo:** `r` and `u`, green rows, moving to the next row,
+2. **Read-only TUI:** ✓ two-pane layout, list, detail panel, reload, resizing.
+3. **Review and undo:** ✓ `r` and `u`, green rows, moving to the next row,
    errors in the status line.
-4. **Category picker:** `c`, which also marks reviewed, with undo restoring
+4. **Category picker:** ✓ `c`, which also marks reviewed, with undo restoring
    the category.
-5. **Notes:** `n`.
-6. **Docs:** README and CLAUDE.md.
+5. **Notes:** ✓ `n`.
+6. **Docs:** ✓ README and CLAUDE.md.
 7. **Packaging, later:** `flake.nix` (package, Home Manager module that sets
    `LUNCHMONEY_TOKEN` from a secret file), `.golangci.yml`, CI workflow,
    release workflow, version stamping, and Dependabot with the
