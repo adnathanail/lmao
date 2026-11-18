@@ -178,8 +178,8 @@ func TestSortFlips(t *testing.T) {
 	if got := payees(m); got != "Corner shop,Employer,Bus" {
 		t.Fatalf("oldest first: %s", got)
 	}
-	if r := m.selected(); r == nil || r.tx.Payee != "Employer" {
-		t.Fatalf("selection moved to %+v", r)
+	if m.cursor != 0 {
+		t.Fatalf("cursor = %d, want the first row", m.cursor)
 	}
 	if !strings.Contains(ansi.Strip(m.header()), "oldest first") {
 		t.Errorf("header = %q", m.header())

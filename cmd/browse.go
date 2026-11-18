@@ -307,12 +307,10 @@ func (m *model) key(msg tea.KeyPressMsg) tea.Cmd {
 	case "J", "shift+down":
 		m.detailOffset++
 	case "s":
-		var selected int64 = -1
-		if r := m.selected(); r != nil {
-			selected = r.tx.ID
-		}
+		// Start from the top of the new order.
 		m.oldestFirst = !m.oldestFirst
-		m.sortRows(selected)
+		m.sortRows(-1)
+		m.offset, m.detailOffset = 0, 0
 	case "R":
 		if !m.loading {
 			return m.load()
