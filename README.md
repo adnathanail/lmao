@@ -32,6 +32,13 @@ LUNCHMONEY_API_URL=https://mock.lunchmoney.dev/v2 LUNCHMONEY_TOKEN=any-mock-toke
 
 ## Installing with Nix
 
+Try it with:
+
+```sh
+nix run github:adnathanail/lmao           # the latest commit on main
+nix run github:adnathanail/lmao/v0.1.0    # a release
+```
+
 The flake's package is `lmao`, with shell completions. With Home Manager,
 its module can also read the token from a file, such as a secret agenix
 decrypts, each time `lmao` starts, so the token isn't in every shell's
@@ -93,3 +100,21 @@ Pending transactions aren't listed: Lunch Money reviews them once they post.
 | --- | --- |
 | `LUNCHMONEY_TOKEN` | Your access token (required) |
 | `LUNCHMONEY_API_URL` | The API to use (default `https://api.lunchmoney.dev/v2`) |
+
+## Versions and releases
+
+`lmao --version` shows the release (e.g. `v0.2.0`) for an install of a
+release, the commit hash for an install of any other commit, and `dev` for a
+build from your own checkout.
+
+To release, run the **Release** workflow (Actions → Release → Run workflow)
+on `main`, choosing `patch`, `minor` or `major`. It bumps the latest release
+tag by that (from `v0.1.0`: `v0.1.1`, `v0.2.0` or `v1.0.0`), makes a release
+commit on top of `main` that adds a `VERSION` file, builds it with Nix
+(running the tests) and checks it reports that version, then pushes the tag
+and creates a GitHub release. Only the tag is pushed: `main` never has a
+`VERSION` file.
+
+This is because Nix builds can't see git tags, so the version has to be in
+the source; `go install` gets it from the tag itself. Tags made by hand still
+work for `go install`, but Nix builds of them show the commit hash.
