@@ -28,6 +28,18 @@ accepts any token of 11 or more characters:
 LUNCHMONEY_API_URL=https://mock.lunchmoney.dev/v2 LUNCHMONEY_TOKEN=any-mock-token lmao
 ```
 
+## Building from source
+
+You need Go 1.26 or later. From a clone of this repository:
+
+```sh
+go build -o lmao .
+LUNCHMONEY_TOKEN=... ./lmao
+```
+
+`go install .` instead puts the binary in `~/go/bin` (or `$GOBIN`), so it
+runs as `lmao` from anywhere if that folder is on your `PATH`.
+
 ## Keys
 
 | Key | Does |
