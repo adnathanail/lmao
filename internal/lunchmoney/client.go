@@ -1,5 +1,9 @@
 // Package lunchmoney is a client for the parts of the Lunch Money v2 API
 // (https://developers.lunchmoney.app) that lmao uses.
+//
+// The docs site's API reference only renders with JavaScript. The same
+// reference, as an OpenAPI spec, is lunch-money-api-v2.yaml in the npm
+// package @lunch-money/v2-api-spec.
 package lunchmoney
 
 import (

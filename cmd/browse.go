@@ -33,6 +33,7 @@ const (
 )
 
 // snapshot is what undo restores: a transaction's status and category.
+// Notes aren't part of it, as the notes editor starts with the old text.
 type snapshot struct {
 	status     string
 	categoryID *int64

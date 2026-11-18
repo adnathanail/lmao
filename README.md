@@ -22,8 +22,9 @@ lmao
 ```
 
 Changes are made to your real budget as soon as you make them. To try
-`lmao` without touching it, point it at Lunch Money's mock server, which
-accepts any token of 11 or more characters:
+`lmao` on demo data first, make a demo budget in Lunch Money (Set up Demo)
+and a token for it. Or point it at Lunch Money's mock server, which accepts
+any token of 11 or more characters:
 
 ```sh
 LUNCHMONEY_API_URL=https://mock.lunchmoney.dev/v2 LUNCHMONEY_TOKEN=any-mock-token lmao
