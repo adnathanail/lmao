@@ -1,0 +1,40 @@
+# Git hooks, run by prek (https://prek.j178.dev). `prek install` sets them
+# up; `prek run --all-files` runs them by hand. CI's lint job runs them too.
+#:schema https://www.schemastore.org/prek.json
+
+default_install_hook_types = ["pre-commit", "pre-push"]
+
+[[repos]]
+repo = "builtin"
+hooks = [
+    { id = "trailing-whitespace" },
+    { id = "end-of-file-fixer" },
+    { id = "check-yaml" },
+    { id = "check-toml" },
+    { id = "check-merge-conflict" },
+    { id = "check-added-large-files" },
+    # Access tokens live close by, in the environment.
+    { id = "detect-private-key" },
+]
+
+# Built with Go by prek, so it needn't be installed. The version is the one
+# CI's lint job used before it ran prek.
+[[repos]]
+repo = "https://github.com/golangci/golangci-lint"
+rev = "v2.15.0"
+hooks = [
+    { id = "golangci-lint-config-verify" },
+    # The whole module, not just changed files, so linters that look across
+    # files (like unused) work.
+    { id = "golangci-lint-full" },
+]
+
+[[repos]]
+repo = "local"
+hooks = [
+    { id = "gofmt", name = "gofmt", entry = "gofmt -w", language = "system", types = ["go"] },
+    { id = "go-mod-tidy", name = "go mod tidy", entry = "go mod tidy -diff", language = "system", files = '(\.go|go\.mod|go\.sum)$', pass_filenames = false },
+    { id = "go-vet", name = "go vet", entry = "go vet ./...", language = "system", types = ["go"], pass_filenames = false },
+    # Before pushing rather than on each commit, as they take a few seconds.
+    { id = "go-test", name = "go test", entry = "go test ./...", language = "system", types = ["go"], pass_filenames = false, stages = ["pre-push"] },
+]

@@ -8,10 +8,9 @@ change. `PLAN.md` has the milestones still to do (packaging, OAuth).
 ## Commands
 
 ```sh
+prek install                                 # git hooks: checks on commit, tests on push
+prek run --all-files                         # gofmt, go mod tidy, go vet, golangci-lint, file checks
 go test ./...
-go vet ./...
-gofmt -l .                                   # should print nothing
-nix run nixpkgs#golangci-lint -- run ./...   # as CI does (.github/workflows/ci.yml)
 go build -o lmao .
 LMAO_TEST_MOCK=1 go test -run TestMockServer ./internal/lunchmoney/   # hits mock.lunchmoney.dev
 LUNCHMONEY_API_URL=https://mock.lunchmoney.dev/v2 LUNCHMONEY_TOKEN=any-mock-token ./lmao
