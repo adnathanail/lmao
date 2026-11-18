@@ -100,7 +100,9 @@ func (m *model) listCategory(id *int64) string {
 	return "#" + strconv.FormatInt(*id, 10)
 }
 
-// listLines renders the rows from offset, each width wide.
+// listLines renders the rows from offset, each width wide. It draws them
+// itself, rather than with a Bubbles table, so a row can be coloured as a
+// whole (selected, reviewed) or by cell.
 func (m *model) listLines(width, height int) []string {
 	amounts := make([]string, len(m.rows))
 	credits := make([]bool, len(m.rows))

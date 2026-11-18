@@ -15,7 +15,8 @@ const (
 )
 
 // Transaction is a transaction object. Amount is a decimal string, positive
-// for money going out (a debit) and negative for money coming in.
+// for money going out (a debit) and negative for money coming in; it's kept
+// as a string, as a float64 can't hold every amount exactly.
 type Transaction struct {
 	ID              int64           `json:"id"`
 	Date            string          `json:"date"`

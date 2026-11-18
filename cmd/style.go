@@ -8,7 +8,9 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-// Basic ANSI colours, so the view follows the terminal's own theme.
+// Basic ANSI colours, so the view follows the terminal's own theme. Each
+// means one thing: green is reviewed, red an error, cyan money coming in and
+// magenta money going out.
 var (
 	styleReviewed = lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
 	styleError    = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
