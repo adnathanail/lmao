@@ -472,3 +472,20 @@ func TestFormatAmount(t *testing.T) {
 		}
 	}
 }
+
+// Unselected rows show the date dim, money out in magenta and money in in
+// cyan.
+func TestListColours(t *testing.T) {
+	m := loadedModel(t, newFake())
+	lines := m.listLines(100, 10) // Bus (selected), Employer, Corner shop
+	if !strings.Contains(lines[1], styleDim.Render("2026-11-11")) {
+		t.Errorf("date not dim: %q", lines[1])
+	}
+	// Amounts are right-aligned, so they start with spaces.
+	if !strings.HasSuffix(lines[1], styleIncome.Render("+£2,100.00")) {
+		t.Errorf("money in not cyan: %q", lines[1])
+	}
+	if !strings.HasSuffix(lines[2], styleSpend.Render("     £4.50")) {
+		t.Errorf("money out not magenta: %q", lines[2])
+	}
+}

@@ -67,7 +67,8 @@ reference pages render client-side, so read the spec instead.
   elsewhere.
 - **Amounts are decimal strings**, positive for money going out. They're
   formatted with `math/big`, never `float64`. The list shows money coming
-  in with a `+` and in cyan, which keeps green for reviewed rows.
+  in with a `+` and in cyan, and money going out in magenta: green is kept
+  for reviewed rows, and red for errors.
 - **The list is drawn by hand** (as in clonager's `browse`), not with a
   Bubbles table, so rows can be coloured as a whole or by cell. The
   category column is sized from every category's name, so it doesn't change

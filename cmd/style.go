@@ -14,6 +14,7 @@ var (
 	styleError    = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
 	styleWarn     = lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
 	styleIncome   = lipgloss.NewStyle().Foreground(lipgloss.Color("6"))
+	styleSpend    = lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
 	styleDim      = lipgloss.NewStyle().Faint(true)
 	styleHeading  = lipgloss.NewStyle().Bold(true)
 	styleSelected = lipgloss.NewStyle().Reverse(true)

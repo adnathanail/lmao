@@ -154,13 +154,16 @@ func (m *model) listLines(width, height int) []string {
 		case r.reviewed():
 			line = styleReviewed.Render(line)
 		default:
-			// Style the cells separately: no category is dim, and money
-			// coming in has its own colour.
+			// Style the cells separately: the date and no category are
+			// dim, and money in and out have their own colours.
+			cells[1] = styleDim.Render(r.tx.Date) + " "
 			if cat == "" {
 				cells[3] = styleDim.Render(catText) + " "
 			}
 			if credits[i] {
 				cells[4] = styleIncome.Render(amount)
+			} else {
+				cells[4] = styleSpend.Render(amount)
 			}
 			if r.saving {
 				cells[0] = styleDim.Render(marker) + " "
@@ -195,7 +198,7 @@ func (m *model) fields(r *row) (main, more []field) {
 	if credit {
 		amount = styleIncome.Render(amount + " in")
 	} else {
-		amount += " out"
+		amount = styleSpend.Render(amount + " out")
 	}
 	category := m.categoryName(tx.CategoryID)
 	if category == "" {
