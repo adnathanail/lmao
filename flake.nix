@@ -7,13 +7,18 @@
     let
       systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
-      version = self.shortRev or self.dirtyShortRev or "dev";
+
+      # A release commit (made by the Release workflow, and only reachable
+      # from its tag) has a VERSION file naming the tag, e.g. v0.2.0; main
+      # doesn't, so builds from it are named by commit.
+      release = if builtins.pathExists ./VERSION then nixpkgs.lib.trim (builtins.readFile ./VERSION) else "";
+      version = if release != "" then release else self.shortRev or self.dirtyShortRev or "dev";
     in
     {
       packages = forAllSystems (pkgs: {
         default = pkgs.buildGoModule {
           pname = "lmao";
-          inherit version;
+          version = nixpkgs.lib.removePrefix "v" version;
           src = self;
 
           # Update when go.mod/go.sum change, or when the code starts importing
@@ -24,7 +29,9 @@
           vendorHash = "sha256-AQet1/uLl2PZu9/BMLcvtPhYnefzU+p1SqF8qT5e6ag=";
 
           env.CGO_ENABLED = 0;
-          ldflags = [ "-s" "-w" ];
+          # Nix builds from a copy of the source without .git, so Go can't
+          # record the version itself.
+          ldflags = [ "-s" "-w" "-X github.com/adnathanail/lmao/cmd.stampedVersion=${version}" ];
 
           nativeBuildInputs = [ pkgs.installShellFiles ];
 

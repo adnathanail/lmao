@@ -39,6 +39,7 @@ Keys:
 Environment:
   ` + auth.TokenEnv + `    an access token, from ` + auth.TokenURL + `
   ` + lunchmoney.BaseURLEnv + `  the API to use (default ` + lunchmoney.DefaultBaseURL + `)`,
+	Version:       version,
 	Args:          cobra.NoArgs,
 	SilenceUsage:  true,
 	SilenceErrors: true,
