@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"runtime/debug"
 	"testing"
 )
@@ -30,5 +31,21 @@ func TestVersionFrom(t *testing.T) {
 		if got := versionFrom(info); got != c.want {
 			t.Errorf("%s: versionFrom(%q) = %q, want %q", c.name, c.version, got, c.want)
 		}
+	}
+}
+
+func TestVersionOutput(t *testing.T) {
+	var out bytes.Buffer
+	rootCmd.SetOut(&out)
+	rootCmd.SetArgs([]string{"--version"})
+	t.Cleanup(func() {
+		rootCmd.SetOut(nil)
+		rootCmd.SetArgs(nil)
+	})
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := out.String(), "version "+version+"\n"; got != want {
+		t.Fatalf("--version printed %q, want %q", got, want)
 	}
 }
