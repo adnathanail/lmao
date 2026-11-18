@@ -21,7 +21,7 @@
           # packages are vendored): set to pkgs.lib.fakeHash, build, and copy
           # the hash from the error. Dependabot's PRs get it updated by
           # .github/workflows/dependabot-vendor-hash.yml.
-          vendorHash = "sha256-AQet1/uLl2PZu9/BMLcvtPhYnefzU+p1SqF8qT5e6ag=";
+          vendorHash = "sha256-D3OyHpUAixYCdLbzSl73FK7jFtvOl5X1OzzbT6EMaXM=";
 
           env.CGO_ENABLED = 0;
           ldflags = [ "-s" "-w" ];
