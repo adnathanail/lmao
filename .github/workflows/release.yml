@@ -82,8 +82,8 @@ jobs:
         run: |
           nix build -L
           got=$(./result/bin/lmao --version | tail -n 1)
-          if [ "$got" != "lmao version $VERSION" ]; then
-            echo "::error::The build says '$got', expected 'lmao version $VERSION'"
+          if [ "$got" != "version $VERSION" ]; then
+            echo "::error::The build says '$got', expected 'version $VERSION'"
             exit 1
           fi
 

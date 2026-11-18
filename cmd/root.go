@@ -46,6 +46,11 @@ Environment:
 	RunE:          runBrowse,
 }
 
+func init() {
+	// Just the version, which the Release workflow checks.
+	rootCmd.SetVersionTemplate("version {{.Version}}\n")
+}
+
 // Execute runs lmao and returns the code to exit with.
 func Execute() int {
 	if err := rootCmd.Execute(); err != nil {
