@@ -72,10 +72,11 @@ type model struct {
 	plaid      map[int64]lunchmoney.Account
 	tags       map[int64]string
 
-	loading    bool
-	loadedOnce bool // a load has succeeded
-	ticking    bool // the spinner's tick is scheduled
-	frame      int
+	loading     bool
+	loadedOnce  bool // a load has succeeded
+	oldestFirst bool // the list's order; newest first by default
+	ticking     bool // the spinner's tick is scheduled
+	frame       int
 
 	message    string
 	messageErr bool
@@ -215,18 +216,11 @@ func (m *model) loaded(msg loadedMsg) {
 	if r := m.selected(); r != nil {
 		selected = r.tx.ID
 	}
-	slices.SortStableFunc(msg.txs, func(a, b lunchmoney.Transaction) int {
-		// Newest first, as the Lunch Money app lists them.
-		return cmp.Or(strings.Compare(b.Date, a.Date), cmp.Compare(b.ID, a.ID))
-	})
 	m.rows = make([]row, len(msg.txs))
-	m.cursor = 0
 	for i, tx := range msg.txs {
 		m.rows[i] = row{tx: tx}
-		if tx.ID == selected {
-			m.cursor = i
-		}
 	}
+	m.sortRows(selected)
 	m.categories = msg.categories
 	m.catByID = map[int64]lunchmoney.Category{}
 	for _, c := range msg.categories {
@@ -242,6 +236,25 @@ func (m *model) loaded(msg loadedMsg) {
 	m.detailOffset = 0
 	if m.message != "" && m.messageErr {
 		m.message = ""
+	}
+}
+
+// sortRows sorts the rows by date, newest first (as the Lunch Money app
+// lists them) or oldest first, and selects the row with the given ID, or
+// the first row if it isn't there.
+func (m *model) sortRows(selected int64) {
+	slices.SortStableFunc(m.rows, func(a, b row) int {
+		c := cmp.Or(strings.Compare(a.tx.Date, b.tx.Date), cmp.Compare(a.tx.ID, b.tx.ID))
+		if !m.oldestFirst {
+			c = -c
+		}
+		return c
+	})
+	m.cursor = 0
+	for i := range m.rows {
+		if m.rows[i].tx.ID == selected {
+			m.cursor = i
+		}
 	}
 }
 
@@ -293,6 +306,13 @@ func (m *model) key(msg tea.KeyPressMsg) tea.Cmd {
 		m.detailOffset = max(0, m.detailOffset-1)
 	case "J", "shift+down":
 		m.detailOffset++
+	case "s":
+		var selected int64 = -1
+		if r := m.selected(); r != nil {
+			selected = r.tx.ID
+		}
+		m.oldestFirst = !m.oldestFirst
+		m.sortRows(selected)
 	case "R":
 		if !m.loading {
 			return m.load()

@@ -396,6 +396,9 @@ func (m *model) header() string {
 			parts = append(parts, styleReviewed.Render(plural(reviewed, "reviewed", "reviewed")))
 		}
 	}
+	if m.oldestFirst {
+		parts = append(parts, "oldest first")
+	}
 	if m.loading {
 		parts = append(parts, styleDim.Render(spinnerFrames[m.frame%len(spinnerFrames)]+" Loading…"))
 	}
@@ -416,7 +419,7 @@ func (m *model) footer() (message, keys string) {
 	case modeNotes:
 		hints = []string{"enter save", "alt+enter new line", "esc cancel"}
 	default:
-		hints = []string{"r review", "c category", "n notes", "u undo", "J/K scroll details", "R reload", "q quit"}
+		hints = []string{"r review", "c category", "n notes", "u undo", "s sort", "J/K scroll details", "R reload", "q quit"}
 	}
 	return message, styleDim.Render(strings.Join(hints, " · "))
 }

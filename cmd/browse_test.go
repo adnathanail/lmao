@@ -171,6 +171,35 @@ func TestLoadSortsNewestFirst(t *testing.T) {
 	}
 }
 
+func TestSortFlips(t *testing.T) {
+	m := loadedModel(t, newFake())
+	run(t, m, press("j")) // Employer
+	run(t, m, press("s"))
+	if got := payees(m); got != "Corner shop,Employer,Bus" {
+		t.Fatalf("oldest first: %s", got)
+	}
+	if r := m.selected(); r == nil || r.tx.Payee != "Employer" {
+		t.Fatalf("selection moved to %+v", r)
+	}
+	if !strings.Contains(ansi.Strip(m.header()), "oldest first") {
+		t.Errorf("header = %q", m.header())
+	}
+	run(t, m, press("s"))
+	if got := payees(m); got != "Bus,Employer,Corner shop" {
+		t.Fatalf("newest first: %s", got)
+	}
+}
+
+// A reload keeps the order chosen.
+func TestReloadKeepsSort(t *testing.T) {
+	m := loadedModel(t, newFake())
+	run(t, m, press("s"))
+	run(t, m, press("R"))
+	if got := payees(m); got != "Corner shop,Employer,Bus" {
+		t.Fatalf("after reload: %s", got)
+	}
+}
+
 func TestReviewAndUndo(t *testing.T) {
 	f := newFake()
 	m := loadedModel(t, f)

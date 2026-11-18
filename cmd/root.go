@@ -28,6 +28,7 @@ Keys:
   c           set its category (and mark it reviewed)
   n           edit its notes
   u           undo the review (and category) made in this session
+  s           flip the order: newest or oldest first
   J/K         scroll the details
   R           reload from Lunch Money
   q           quit
