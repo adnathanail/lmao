@@ -29,6 +29,7 @@ Keys:
   c           set its category (and mark it reviewed)
   n           edit its notes
   u           undo the review (and category) made in this session
+  o           open it in the Lunch Money web app
   ←/→ h/l     show the previous or next month
   s           flip the order (newest or oldest first), selecting the first
   J/K         scroll the details

@@ -32,6 +32,8 @@ reference pages render client-side, so read the spec instead.
 - `internal/lunchmoney/` — the API client: requests, errors, rate-limit
   retry (`client.go`), transactions, categories, accounts and tags
 - `internal/auth/` — `TokenSource`, and `EnvSource` reading `LUNCHMONEY_TOKEN`
+- `internal/browser/` — the web app's transaction links, and opening them
+  (`open` on macOS, `xdg-open` elsewhere)
 
 ## Design decisions
 

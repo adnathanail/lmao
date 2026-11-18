@@ -51,6 +51,7 @@ runs as `lmao` from anywhere if that folder is on your `PATH`.
 | `n` | Edit its notes: `Enter` saves, `Alt-Enter` adds a new line, `Esc` cancels |
 | `u` | Undo: put its status and category back to how they were before you changed them |
 | `←`/`→`, `h`/`l` | Show the previous or next month |
+| `o` | Open it in the Lunch Money web app |
 | `s` | Flip the order, newest first (the default) or oldest first, and select the first transaction |
 | `J`/`K` | Scroll the details |
 | `R` | Reload from Lunch Money |

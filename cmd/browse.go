@@ -10,6 +10,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 
+	"github.com/adnathanail/lmao/internal/browser"
 	"github.com/adnathanail/lmao/internal/lunchmoney"
 )
 
@@ -86,10 +87,12 @@ type model struct {
 	mode   mode
 	picker picker
 	notes  notesEditor
+
+	openURL func(string) error // opens a page in the browser; tests replace it
 }
 
 func newModel(a api) *model {
-	return &model{api: a, month: monthOf(time.Now())}
+	return &model{api: a, month: monthOf(time.Now()), openURL: browser.Open}
 }
 
 // monthOf is the first of t's month, in UTC.
@@ -113,6 +116,7 @@ type (
 		before snapshot // the row's status and category when the change was sent
 		undo   bool
 	}
+	openedMsg    struct{ err error }
 	rateLimitMsg struct{ wait time.Duration }
 	tickMsg      struct{}
 )
@@ -186,6 +190,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.loaded(msg)
 	case savedMsg:
 		m.saved(msg)
+	case openedMsg:
+		if msg.err != nil {
+			m.setError(msg.err.Error())
+		}
 	case rateLimitMsg:
 		m.setError("Lunch Money's rate limit was reached: retrying in " + msg.wait.Round(time.Second).String())
 	case tea.KeyPressMsg:
@@ -352,6 +360,8 @@ func (m *model) key(msg tea.KeyPressMsg) tea.Cmd {
 		return m.openPicker()
 	case "n":
 		return m.openNotes()
+	case "o":
+		return m.openInBrowser()
 	}
 	return nil
 }
@@ -439,6 +449,18 @@ func (m *model) setCategory(id int64) tea.Cmd {
 	cmd := m.save(r, lunchmoney.Change{Status: lunchmoney.StatusReviewed, SetCategory: true, CategoryID: &id}, false)
 	m.nextUnreviewed()
 	return cmd
+}
+
+// openInBrowser opens the selected transaction in the Lunch Money web app.
+func (m *model) openInBrowser() tea.Cmd {
+	r := m.selected()
+	if r == nil {
+		return nil
+	}
+	open, u := m.openURL, browser.TransactionURL(r.tx.ID)
+	return func() tea.Msg {
+		return openedMsg{err: open(u)}
+	}
 }
 
 func (m *model) setNotes(notes string) tea.Cmd {

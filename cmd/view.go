@@ -443,7 +443,7 @@ func (m *model) hints() []string {
 	case modeNotes:
 		return []string{"enter save", "alt+enter new line", "esc cancel"}
 	}
-	return []string{"r review", "c category", "n notes", "u undo", "←/→ month", "s sort", "J/K scroll details", "R reload", "q quit"}
+	return []string{"r review", "c category", "n notes", "u undo", "o open", "←/→ month", "s sort", "J/K scroll details", "R reload", "q quit"}
 }
 
 // keyLines lays the hints out in as many lines as they need at the

@@ -490,6 +490,28 @@ func TestListColours(t *testing.T) {
 	}
 }
 
+func TestOpenInBrowser(t *testing.T) {
+	m := loadedModel(t, newFake())
+	var opened string
+	m.openURL = func(u string) error { opened = u; return nil }
+	run(t, m, press("j")) // Employer
+	_, cmd := m.Update(press("o"))
+	if cmd == nil {
+		t.Fatal("o returned no command")
+	}
+	run(t, m, cmd())
+	if opened != "https://my.lunchmoney.app/transactions?transaction_id=3" {
+		t.Fatalf("opened %q", opened)
+	}
+
+	m.openURL = func(string) error { return errors.New("no browser") }
+	_, cmd = m.Update(press("o"))
+	run(t, m, cmd())
+	if !m.messageErr || !strings.Contains(m.message, "no browser") {
+		t.Fatalf("message = %q", m.message)
+	}
+}
+
 // Key hints too long for one line wrap between hints, and the list makes
 // room for them.
 func TestKeyHintsWrap(t *testing.T) {
