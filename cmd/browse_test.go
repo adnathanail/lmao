@@ -489,3 +489,34 @@ func TestListColours(t *testing.T) {
 		t.Errorf("money out not magenta: %q", lines[2])
 	}
 }
+
+// Key hints too long for one line wrap between hints, and the list makes
+// room for them.
+func TestKeyHintsWrap(t *testing.T) {
+	m := loadedModel(t, newFake())
+	run(t, m, tea.WindowSizeMsg{Width: 50, Height: 20})
+	keys := m.keyLines()
+	if len(keys) < 2 {
+		t.Fatalf("keys in %d line(s): %q", len(keys), keys)
+	}
+	joined := ansi.Strip(strings.Join(keys, " · "))
+	for _, h := range m.hints() {
+		if !strings.Contains(joined, h) {
+			t.Errorf("hint %q missing from %q", h, keys)
+		}
+	}
+	for _, l := range keys {
+		if w := ansi.StringWidth(l); w > 50 {
+			t.Errorf("line %d wide: %q", w, ansi.Strip(l))
+		}
+	}
+	lines := strings.Split(ansi.Strip(m.View().Content), "\n")
+	if len(lines) != 20 || ansi.Strip(lines[len(lines)-1]) != ansi.Strip(keys[len(keys)-1]) {
+		t.Fatalf("view has %d lines, ending %q", len(lines), lines[len(lines)-1])
+	}
+
+	run(t, m, tea.WindowSizeMsg{Width: 200, Height: 20})
+	if n := len(m.keyLines()); n != 1 {
+		t.Errorf("wide window: keys in %d lines", n)
+	}
+}

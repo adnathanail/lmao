@@ -15,7 +15,6 @@ import (
 
 const (
 	headerLines = 1
-	footerLines = 2
 	wideFrom    = 90 // columns from which the details go beside the list
 	panelGap    = " │ "
 	labelWidth  = 15
@@ -23,7 +22,11 @@ const (
 
 func (m *model) wide() bool { return m.width >= wideFrom }
 
-func (m *model) bodyHeight() int { return max(1, m.height-headerLines-footerLines) }
+func (m *model) bodyHeight() int { return max(1, m.height-headerLines-m.footerLines()) }
+
+// footerLines is the message line, and however many lines the key hints
+// take.
+func (m *model) footerLines() int { return 1 + len(m.keyLines()) }
 
 func (m *model) listHeight() int {
 	if m.wide() {
@@ -422,23 +425,49 @@ func (m *model) header() string {
 	return strings.Join(parts, styleDim.Render(" · "))
 }
 
-func (m *model) footer() (message, keys string) {
-	message = m.message
-	if m.messageErr {
-		message = styleError.Render(message)
-	} else if message != "" {
-		message = styleWarn.Render(message)
+func (m *model) messageLine() string {
+	switch {
+	case m.messageErr:
+		return styleError.Render(m.message)
+	case m.message != "":
+		return styleWarn.Render(m.message)
 	}
-	var hints []string
+	return ""
+}
+
+// hints are the keys the footer lists for the current mode.
+func (m *model) hints() []string {
 	switch m.mode {
 	case modePicker:
-		hints = []string{"type to filter", "↑/↓ select", "enter set and review", "esc cancel"}
+		return []string{"type to filter", "↑/↓ select", "enter set and review", "esc cancel"}
 	case modeNotes:
-		hints = []string{"enter save", "alt+enter new line", "esc cancel"}
-	default:
-		hints = []string{"r review", "c category", "n notes", "u undo", "←/→ month", "s sort", "J/K scroll details", "R reload", "q quit"}
+		return []string{"enter save", "alt+enter new line", "esc cancel"}
 	}
-	return message, styleDim.Render(strings.Join(hints, " · "))
+	return []string{"r review", "c category", "n notes", "u undo", "←/→ month", "s sort", "J/K scroll details", "R reload", "q quit"}
+}
+
+// keyLines lays the hints out in as many lines as they need at the
+// window's width, breaking only between hints.
+func (m *model) keyLines() []string {
+	const sep = " · "
+	var lines []string
+	line := ""
+	for _, h := range m.hints() {
+		switch {
+		case line == "":
+			line = h
+		case lipgloss.Width(line+sep+h) <= m.width:
+			line += sep + h
+		default:
+			lines = append(lines, line)
+			line = h
+		}
+	}
+	lines = append(lines, line)
+	for i, l := range lines {
+		lines[i] = styleDim.Render(ansi.Truncate(l, m.width, "…"))
+	}
+	return lines
 }
 
 func (m *model) View() tea.View {
@@ -482,10 +511,10 @@ func (m *model) View() tea.View {
 		}
 	}
 
-	message, keys := m.footer()
 	out := []string{ansi.Truncate(m.header(), m.width, "…")}
 	out = append(out, body...)
-	out = append(out, ansi.Truncate(message, m.width, "…"), ansi.Truncate(keys, m.width, "…"))
+	out = append(out, ansi.Truncate(m.messageLine(), m.width, "…"))
+	out = append(out, m.keyLines()...)
 	v.SetContent(strings.Join(out[:min(len(out), m.height)], "\n"))
 	return v
 }
