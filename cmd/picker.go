@@ -190,6 +190,8 @@ func newNotesEditor(value string, width int) notesEditor {
 	ta.SetWidth(max(10, width))
 	// Enter saves, so new lines need another key.
 	ta.KeyMap.InsertNewline = key.NewBinding(key.WithKeys("alt+enter", "ctrl+j"))
+	// The textarea's own styles use fixed colours, which don't follow the
+	// terminal's theme.
 	plain := textarea.StyleState{
 		Base:        lipgloss.NewStyle(),
 		Text:        lipgloss.NewStyle(),

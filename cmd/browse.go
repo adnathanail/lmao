@@ -400,6 +400,8 @@ func (m *model) editable() *row {
 	return r
 }
 
+// review marks the selected row reviewed. Only rows with a category can be:
+// c sets one and reviews the row at once.
 func (m *model) review() tea.Cmd {
 	r := m.editable()
 	if r == nil {
