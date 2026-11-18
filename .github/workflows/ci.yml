@@ -63,3 +63,14 @@ jobs:
       - uses: j178/prek-action@v3.1.0
         with:
           prek-version: 0.5.10
+
+  nix:
+    name: Nix build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      # Builds the flake package (running the tests again inside the Nix
+      # build), so a stale vendorHash in flake.nix is caught here.
+      - name: nix build
+        run: nix build -L

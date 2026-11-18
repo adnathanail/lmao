@@ -29,6 +29,29 @@ accepts any token of 11 or more characters:
 LUNCHMONEY_API_URL=https://mock.lunchmoney.dev/v2 LUNCHMONEY_TOKEN=any-mock-token lmao
 ```
 
+## Installing with Nix
+
+The flake's package is `lmao`, with shell completions. With Home Manager,
+its module can also read the token from a file, such as a secret agenix
+decrypts, each time `lmao` starts, so the token isn't in every shell's
+environment:
+
+```nix
+{
+  inputs.lmao.url = "github:adnathanail/lmao";
+
+  # In your Home Manager config:
+  imports = [ inputs.lmao.homeModules.default ];
+  programs.lmao = {
+    enable = true;
+    tokenFile = "/run/agenix/lunchmoney-token"; # optional
+  };
+}
+```
+
+`LUNCHMONEY_TOKEN` set in the environment still takes precedence over
+`tokenFile`.
+
 ## Building from source
 
 You need Go 1.26 or later. From a clone of this repository:
