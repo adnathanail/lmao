@@ -26,7 +26,7 @@
           # packages are vendored): set to pkgs.lib.fakeHash, build, and copy
           # the hash from the error. Dependabot's PRs get it updated by
           # .github/workflows/dependabot-vendor-hash.yml.
-          vendorHash = "sha256-D3OyHpUAixYCdLbzSl73FK7jFtvOl5X1OzzbT6EMaXM=";
+          vendorHash = "sha256-2EW5WNvwlzc+2LvthcO+zMOfg9AJevo2/yr8ZGEYxVA=";
 
           env.CGO_ENABLED = 0;
           # Nix builds from a copy of the source without .git, so Go can't
